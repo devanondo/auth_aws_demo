@@ -17,6 +17,11 @@ export default tseslint.config(
             globals: {
                 process: 'readonly',
                 console: 'readonly',
+                Buffer: 'readonly',
+                require: 'readonly',
+                module: 'readonly',
+                exports: 'readonly',
+                global: 'readonly',
             },
         },
         files: ['**/*.js', '**/*.ts', '**/*.mjs'],
@@ -28,6 +33,7 @@ export default tseslint.config(
             'no-unused-expressions': 'error',
             'no-unreachable': 'error',
             'no-console': 'warn',
+            'no-var': 'warn',
             '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
         },
     }
