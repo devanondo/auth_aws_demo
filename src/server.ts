@@ -1,33 +1,25 @@
-import { PrismaClient } from '@prisma/client';
+/* eslint-disable no-console */
+import { Server } from 'http';
+import mongoose from 'mongoose';
 import app from './app';
 import config from './config';
-import { errorLogger, logger } from './shared/logger';
-import { Server } from 'http';
 
 process.on('uncaughtException', () => {
     console.log(`Uncaught Exception detected...`);
     process.exit(1);
 });
 
-declare global {
-    var prisma: PrismaClient | undefined;
-}
-
 let server: Server;
 async function ConnectDatabase() {
     try {
-        const db = globalThis.prisma || new PrismaClient();
-
-        if (process.env.NODE_ENV !== 'production') globalThis.prisma = db;
-
-        logger.info(`🥃 Database Connected!`);
+        await mongoose.connect(config.database_url as string);
+        console.log(`🥃 Database Connected!`);
 
         server = app.listen(config.port, () => {
-            logger.info(`🛢️ Server is running on ${config.port}`);
+            console.log(`🛢️ Server is running on ${config.port}`);
         });
     } catch (error) {
-        console.log(error);
-        errorLogger.error('🤬 Faild to connect Database!');
+        console.log('🤬 Faild to connect Database!');
     }
 
     process.on('unhandledRejection', (error) => {
@@ -35,7 +27,7 @@ async function ConnectDatabase() {
 
         if (server) {
             server.close(() => {
-                errorLogger.error(error);
+                console.log(error);
                 process.exit(1);
             });
         } else {
@@ -47,7 +39,7 @@ async function ConnectDatabase() {
 ConnectDatabase();
 
 process.on('SIGTERM', () => {
-    logger.info('SIGTERM received');
+    console.log('SIGTERM received');
     if (server) {
         server.close();
     }
