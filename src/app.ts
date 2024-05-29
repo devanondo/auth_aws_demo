@@ -1,8 +1,8 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express, { Application, Request, Response } from 'express';
-import { ExampleRoutes } from './app/modules/example/example.route';
 import globalErrorHandler from './middleware/global-error-handler';
+import router from './app/routes';
 
 dotenv.config();
 const app: Application = express();
@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Application routes
-app.use('/api/v1', ExampleRoutes);
+app.use('/api/v1', router);
 
 app.get('/', (req: Request, res: Response) => {
     res.status(200).json({
