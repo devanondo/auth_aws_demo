@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { Schema, model } from 'mongoose';
+import mongoose, { Schema, model } from 'mongoose';
 import config from '../../../config';
 import { user_roles } from './user.constants';
 import { IUser, UserModel } from './user.interface';
@@ -10,6 +10,9 @@ const UserSchema = new Schema<IUser, UserModel>(
             type: String,
             required: true,
             unique: true,
+        },
+        name: {
+            type: String,
         },
         email: {
             type: String,
@@ -35,6 +38,11 @@ const UserSchema = new Schema<IUser, UserModel>(
             default: false,
             required: true,
         },
+        is_deleted: {
+            type: Boolean,
+            default: false,
+            required: true,
+        },
     },
     {
         timestamps: true,
@@ -53,13 +61,12 @@ UserSchema.statics.isUserExist = async function (
                 $or: [
                     { email: query },
                     { username: query },
-                    { _id: new Schema.ObjectId(query) },
+                    { _id: new mongoose.Types.ObjectId(query) },
                 ],
             },
         },
     ]);
 
-    // return await User.findOne({ query }, { userid: 1, password: 1, role: 1 });
     return user[0];
 };
 

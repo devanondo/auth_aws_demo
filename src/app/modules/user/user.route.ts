@@ -25,6 +25,14 @@ router
 router
     .route('/:id')
     .get(auth(), UserController.getSingleUsers)
-    .patch(auth(), UserController.updateUser);
+    .patch(
+        auth('superadmin'),
+        validateData(UserZodValidation.updateUserZodSchema),
+        UserController.updateUser
+    )
+    //Delete User not removed from database
+    .put(auth('superadmin'), UserController.deleteUser)
+    // Removed user from database
+    .delete(auth('superadmin'), UserController.trushUser);
 
 export const UserRoutes = router;

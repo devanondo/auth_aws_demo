@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import { SortOrder } from 'mongoose';
+import { Schema, SortOrder } from 'mongoose';
 import ApiError from '../../../error/api-error';
 import { paginationHelpers } from '../../../helper/paginationHelper';
 import { IGenericResponse } from '../../../interface/common.inteface';
@@ -7,6 +7,7 @@ import { IPaginationOptions } from '../../../middleware/paginationOptions';
 import { userFilterableFields } from './user.constants';
 import { IUser, IUserFilters } from './user.interface';
 import { User } from './user.model';
+import { Request } from 'express';
 
 // Create user | Register User
 const createAdmin = async (user: IUser): Promise<IUser | null> => {
@@ -94,20 +95,13 @@ const getUsers = async (
     };
 };
 
-// Get single user --> customer | admin | vendor
+// Get single user --> superadmin | admin
 const getSingleUsers = async (id: string): Promise<IUser | null> => {
-    const user = await User.aggregate([
-        {
-            $match: {
-                userid: id,
-            },
-        },
-    ]);
+    const user = await User.findById(id);
 
-    if (!user.length)
-        throw new ApiError(httpStatus.NOT_FOUND, 'User not round!');
+    if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not round!');
 
-    return user[0];
+    return user;
 };
 
 // Update user
@@ -115,8 +109,15 @@ const updateUser = async (
     id: string,
     payload: Partial<IUser>
 ): Promise<IUser | null> => {
+    if (payload.password) {
+        throw new ApiError(
+            httpStatus.UNAUTHORIZED,
+            'You are not allowed to update password!'
+        );
+    }
+
     const user = await User.findOneAndUpdate(
-        { userid: id },
+        { _id: id },
         { ...payload },
         { new: true }
     );
@@ -126,9 +127,50 @@ const updateUser = async (
     return user;
 };
 
+// Update user
+const deleteUser = async (id: string, req: Request): Promise<IUser | null> => {
+    deletePermission(id, req);
+
+    const isDeleteUser = await User.findOneAndUpdate(
+        { _id: id },
+        {
+            is_deleted: true,
+        },
+        { new: true }
+    );
+
+    if (!isDeleteUser)
+        throw new ApiError(httpStatus.EXPECTATION_FAILED, 'Faild to delete!');
+
+    return isDeleteUser;
+};
+
+// Trush user
+const trushUser = async (id: string, req: Request): Promise<IUser | null> => {
+    deletePermission(id, req);
+
+    const isDeleteUser = await User.findOneAndDelete({ _id: id });
+
+    if (!isDeleteUser)
+        throw new ApiError(httpStatus.EXPECTATION_FAILED, 'Faild to remove!');
+
+    return isDeleteUser;
+};
+
+const deletePermission = (id: string, req: Request) => {
+    if (id.toString() === req?.user?._id?.toString()) {
+        throw new ApiError(
+            httpStatus.UNAUTHORIZED,
+            'You are not allowed to delete yourself!'
+        );
+    }
+};
+
 export const UserService = {
     createAdmin,
     getUsers,
     getSingleUsers,
     updateUser,
+    deleteUser,
+    trushUser,
 };

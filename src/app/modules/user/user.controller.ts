@@ -58,7 +58,7 @@ const getSingleUsers: RequestHandler = catchAsync(
     }
 );
 
-// Update user info --> customer | admin | vendor
+// Update user info --> AMDIN | SUPERADMIN
 const updateUser: RequestHandler = catchAsync(
     async (req: Request, res: Response) => {
         const id = req.params.id;
@@ -75,9 +75,43 @@ const updateUser: RequestHandler = catchAsync(
     }
 );
 
+// Delete user --> AMDIN | SUPERADMIN
+const deleteUser: RequestHandler = catchAsync(
+    async (req: Request, res: Response) => {
+        const id = req.params.id;
+
+        const result = await UserService.deleteUser(id, req);
+
+        sendResponse<IUser>(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: 'User Deleted Successfully',
+            data: result,
+        });
+    }
+);
+
+// removed user from database --> AMDIN | SUPERADMIN
+const trushUser: RequestHandler = catchAsync(
+    async (req: Request, res: Response) => {
+        const id = req.params.id;
+
+        const result = await UserService.trushUser(id, req);
+
+        sendResponse<IUser>(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: 'User Removed Successfully',
+            data: result,
+        });
+    }
+);
+
 export const UserController = {
     createAdmin,
     updateUser,
     getSingleUsers,
     getUsers,
+    deleteUser,
+    trushUser,
 };

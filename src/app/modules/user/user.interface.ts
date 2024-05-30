@@ -9,6 +9,7 @@ export type IUser = {
     email: string;
     name: string;
     is_verified?: boolean;
+    is_deleted?: boolean;
     _id?: string;
 };
 
