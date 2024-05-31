@@ -74,7 +74,9 @@ UserSchema.statics.isPasswordMatched = async function (
     givenPassword: string,
     savedPassword: string
 ): Promise<boolean> {
-    return await bcrypt.compare(givenPassword, savedPassword);
+    const matchedPassword = await bcrypt.compare(givenPassword, savedPassword);
+    console.log(matchedPassword);
+    return matchedPassword;
 };
 
 UserSchema.pre('save', async function (next) {
