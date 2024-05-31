@@ -10,13 +10,25 @@ export type IUser = {
     name: string;
     is_verified?: boolean;
     is_deleted?: boolean;
+    token?: string;
     _id?: string;
 };
 
 export type UserModel = {
     isUserExist(
         key?: string
-    ): Promise<Pick<IUser, '_id' | 'email' | 'username' | 'role' | 'password'>>;
+    ): Promise<
+        Pick<
+            IUser,
+            | '_id'
+            | 'email'
+            | 'username'
+            | 'role'
+            | 'password'
+            | 'token'
+            | 'is_verified'
+        >
+    >;
     isPasswordMatched(
         givenPassword: string,
         savedPassword: string

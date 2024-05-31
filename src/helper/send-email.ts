@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import config from '../config';
 
 type OptionsType = {
     to: string;
@@ -10,17 +11,17 @@ export async function sendEmail(options: OptionsType) {
     try {
         let transporter = nodemailer.createTransport({
             service: 'gmail',
-            host: process.env.NEXT_PUBLIC_HOST,
+            host: config.nodemailer_host,
             port: 465,
             secure: true,
             auth: {
-                user: process.env.NEXT_PUBLIC_EMAIL,
-                pass: process.env.EMAIL_NODEMAILER_PASS,
+                user: config.nodemailer_email,
+                pass: config.nodemailer_pass,
             },
         });
 
         const mailOptions = {
-            from: `Night Teer <${process.env.NEXT_PUBLIC_EMAIL}>`,
+            from: `Night Teer <${config.nodemailer_email}>`,
             to: options.to,
             subject: options.subject,
             html: options.html,

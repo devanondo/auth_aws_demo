@@ -33,6 +33,10 @@ const UserSchema = new Schema<IUser, UserModel>(
             required: true,
             select: 0,
         },
+        token: {
+            type: String,
+            select: 0,
+        },
         is_verified: {
             type: Boolean,
             default: false,
@@ -61,7 +65,7 @@ UserSchema.statics.isUserExist = async function (
                 $or: [
                     { email: query },
                     { username: query },
-                    { _id: new mongoose.Types.ObjectId(query) },
+                    // { _id: new mongoose.Types.ObjectId(query) },
                 ],
             },
         },
@@ -75,7 +79,6 @@ UserSchema.statics.isPasswordMatched = async function (
     savedPassword: string
 ): Promise<boolean> {
     const matchedPassword = await bcrypt.compare(givenPassword, savedPassword);
-    console.log(matchedPassword);
     return matchedPassword;
 };
 

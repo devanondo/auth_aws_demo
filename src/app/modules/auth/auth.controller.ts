@@ -28,6 +28,50 @@ const loginUser: RequestHandler = catchAsync(
     }
 );
 
+const sendOtp: RequestHandler = catchAsync(
+    async (req: Request, res: Response) => {
+        const payload = req.body;
+        const result = await AuthService.sendOtp(payload);
+
+        sendResponse<null>(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: 'OTP Sended!',
+            data: null,
+        });
+    }
+);
+
+const changePassword: RequestHandler = catchAsync(
+    async (req: Request, res: Response) => {
+        const payload = req.body;
+        const result = await AuthService.changePassword(payload);
+
+        sendResponse<Record<string, unknown>>(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: 'Password changed',
+            data: result,
+        });
+    }
+);
+
+const verifyUser: RequestHandler = catchAsync(
+    async (req: Request, res: Response) => {
+        const payload = req.body;
+        const result = await AuthService.verifyUser(payload);
+
+        sendResponse<Record<string, unknown>>(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: 'Verified Sucessfully',
+            data: result,
+        });
+    }
+);
 export const AuthController = {
     loginUser,
+    sendOtp,
+    changePassword,
+    verifyUser,
 };
