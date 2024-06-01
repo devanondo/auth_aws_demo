@@ -33,6 +33,7 @@ export type UserModel = {
         givenPassword: string,
         savedPassword: string
     ): Promise<boolean>;
+    isVerifiedUser(id: string): Promise<boolean>;
 } & Model<IUser>;
 
 export type IUserFilters = {

@@ -9,8 +9,12 @@ import { generateOtp } from '../../../helper/otp-generator';
 import { sendEmail } from '../../../helper/send-email';
 import { verifyOtp } from '../../../helper/verify-otp';
 import bcrypt from 'bcrypt';
+import { IUser } from '../user/user.interface';
+import { Request } from 'express';
 
-const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
+const loginUser = async (
+    payload: ILoginUser
+): Promise<ILoginUserResponse | Record<string, string | boolean>> => {
     const { password, id } = payload;
 
     if (!id) {
@@ -57,10 +61,10 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
             html: otp,
         });
 
-        throw new ApiError(
-            httpStatus.UNAUTHORIZED,
-            'Please verify your email first, We send OTP on your email'
-        );
+        return {
+            success: true,
+            redirect: '/verify-otp',
+        };
     }
 
     // Generate access token
@@ -211,9 +215,28 @@ const verifyUser = async (payload: {
     };
 };
 
+// get logged in user
+
+const getLoggedInUser = async (req: Request): Promise<Partial<IUser>> => {
+    const { _id } = req.user as any;
+
+    if (!_id) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Please login first!');
+    }
+
+    const user = await User.findById(_id);
+
+    if (!user) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
+    }
+
+    return user;
+};
+
 export const AuthService = {
     loginUser,
     sendOtp,
     changePassword,
     verifyUser,
+    getLoggedInUser,
 };

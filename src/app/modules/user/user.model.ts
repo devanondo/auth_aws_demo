@@ -3,6 +3,8 @@ import mongoose, { Schema, model } from 'mongoose';
 import config from '../../../config';
 import { user_roles } from './user.constants';
 import { IUser, UserModel } from './user.interface';
+import ApiError from '../../../error/api-error';
+import httpStatus from 'http-status';
 
 const UserSchema = new Schema<IUser, UserModel>(
     {
@@ -80,6 +82,15 @@ UserSchema.statics.isPasswordMatched = async function (
 ): Promise<boolean> {
     const matchedPassword = await bcrypt.compare(givenPassword, savedPassword);
     return matchedPassword;
+};
+
+UserSchema.statics.isVerifiedUser = async function (
+    id: string
+): Promise<boolean> {
+    const user = await User.findById(id);
+    if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
+
+    return user.is_verified!;
 };
 
 UserSchema.pre('save', async function (next) {

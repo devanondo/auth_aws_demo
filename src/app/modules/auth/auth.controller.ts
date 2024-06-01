@@ -5,26 +5,42 @@ import { ILoginUserResponse } from './auth.interface';
 import httpStatus from 'http-status';
 import catchAsync from '../../../shared/catch-async-await';
 import sendResponse from '../../../shared/send-response';
+import { IUser } from '../user/user.interface';
 
 const loginUser: RequestHandler = catchAsync(
     async (req: Request, res: Response) => {
         const result = await AuthService.loginUser(req.body);
-        const { refreshToken, ...others } = result;
+        if (result?.refreshToken) {
+            const { refreshToken, ...others } = result;
 
-        // Set refresh token on cookie
-        const options = {
-            secure: config.env === 'production',
-            httpOnly: true,
-        };
+            // Set refresh token on cookie
+            const options = {
+                secure: config.env === 'production',
+                httpOnly: true,
+            };
 
-        res.cookie('refreshToken', refreshToken, options);
+            res.cookie('refreshToken', refreshToken, options);
 
-        sendResponse<ILoginUserResponse>(res, {
-            statusCode: httpStatus.OK,
-            success: true,
-            message: 'Logged in successfully!',
-            data: others,
-        });
+            sendResponse<ILoginUserResponse | Record<string, string | boolean>>(
+                res,
+                {
+                    statusCode: httpStatus.OK,
+                    success: true,
+                    message: 'Logged in successfully!',
+                    data: others,
+                }
+            );
+        } else {
+            sendResponse<ILoginUserResponse | Record<string, string | boolean>>(
+                res,
+                {
+                    statusCode: httpStatus.OK,
+                    success: true,
+                    message: 'Faild to login! verify your email first!',
+                    data: result,
+                }
+            );
+        }
     }
 );
 
@@ -69,9 +85,24 @@ const verifyUser: RequestHandler = catchAsync(
         });
     }
 );
+
+const getLoggedInUser: RequestHandler = catchAsync(
+    async (req: Request, res: Response) => {
+        const result = await AuthService.getLoggedInUser(req);
+
+        sendResponse<Partial<IUser>>(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: 'User retrived successfully!',
+            data: result,
+        });
+    }
+);
+
 export const AuthController = {
     loginUser,
     sendOtp,
     changePassword,
     verifyUser,
+    getLoggedInUser,
 };
