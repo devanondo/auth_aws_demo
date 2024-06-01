@@ -1,10 +1,10 @@
 import bcrypt from 'bcrypt';
-import mongoose, { Schema, model } from 'mongoose';
+import httpStatus from 'http-status';
+import { Schema, model } from 'mongoose';
 import config from '../../../config';
+import ApiError from '../../../error/api-error';
 import { user_roles } from './user.constants';
 import { IUser, UserModel } from './user.interface';
-import ApiError from '../../../error/api-error';
-import httpStatus from 'http-status';
 
 const UserSchema = new Schema<IUser, UserModel>(
     {
